@@ -4,8 +4,17 @@
   "scenario": "Research a synthetic customer's refund and retention policies using tools and persistent context.",
   "capabilities": {
     "model": {
-      "provider": "ollama",
-      "name": "llama3.2:3b"
+      "kind": "tool-chat",
+      "bindings": {
+        "local": {
+          "provider": "ollama",
+          "model": "llama3.2:3b"
+        },
+        "aws": {
+          "provider": "bedrock",
+          "model_id": null
+        }
+      }
     },
     "runtime": {
       "type": "tool-using-agent"

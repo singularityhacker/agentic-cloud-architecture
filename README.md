@@ -99,7 +99,7 @@ The first model pull downloads weights and needs local RAM/disk capacity; the be
 {
   "name": "enterprise-research",
   "capabilities": {
-    "model": {"provider": "ollama", "name": "llama3.2:3b"},
+    "model": {"kind": "tool-chat", "bindings": {"local": {"provider": "ollama", "model": "llama3.2:3b"}, "aws": {"provider": "bedrock", "model_id": null}}},
     "memory": {"type": "persistent"},
     "retrieval": {"type": "document_search"},
     "tools": ["search_docs", "lookup_customer", "remember", "recall"],
@@ -111,7 +111,7 @@ The first model pull downloads weights and needs local RAM/disk capacity; the be
 }
 ~~~
 
-This capability specification is separate from the older `architectures/*.json` **cost/benchmark profiles**. The local runtime implements the named subset. AWS mappings are specified but not a universal CDK compiler. Details: [schema and contracts](docs/capability-parity.md).
+The model binding is explicit per target: no AWS model is selected yet, so the AWS deployment cannot silently pick a different one. For an infrastructure comparison, verify model/version parity; otherwise label it a combined model-and-infrastructure comparison.\n\nThis capability specification is separate from the older `architectures/*.json` **cost/benchmark profiles**. The local runtime implements the named subset. AWS mappings are specified but not a universal CDK compiler. Details: [schema and contracts](docs/capability-parity.md).
 
 ## Architecture development workflow
 

@@ -171,9 +171,8 @@ class LocalAgent:
         self.memory = SQLiteMemory(memory_path)
         allowed = spec["capabilities"]["policy"]["allowed_tools"]
         self.tools = Tools(self.knowledge, self.memory, allowed)
-        self.provider = provider or os.getenv("AGENT_MODEL_PROVIDER",
-                                             spec["capabilities"]["model"]["provider"])
-        model_name = spec["capabilities"]["model"]["name"]
+        self.provider = provider or os.getenv("AGENT_MODEL_PROVIDER") or spec["capabilities"]["model"]["bindings"]["local"]["provider"]
+        model_name = os.getenv("AGENT_MODEL") or spec["capabilities"]["model"]["bindings"]["local"]["model"]
         if self.provider == "rules":
             self.model = RulesModel()
         elif self.provider == "ollama":

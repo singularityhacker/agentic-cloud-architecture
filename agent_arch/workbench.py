@@ -44,7 +44,7 @@ def validated_spec(path):
     if (not set(tools) <= KNOWN_TOOLS or not set(allowed) <= set(tools)
             or len(set(tools)) != len(tools)):
         raise ValueError("Tools must be unique built-in names; policy allowed_tools subset")
-    if c["model"]["provider"] not in ("ollama", "rules"):
+    if c["model"]["bindings"]["local"]["provider"] not in ("ollama", "rules"):
         raise ValueError("Local target supports only ollama or rules model provider")
     for key in ("max_model_turns", "max_tool_calls"):
         value = spec["limits"].get(key)
@@ -66,6 +66,12 @@ def plan(spec, target):
                   "status": "local prototype" if target == "local" else "planned"}
             for key, mapping in MAPPINGS.items()
         },
+        "model_binding": (
+            {"local_model": spec["capabilities"]["model"]["bindings"]["local"]}
+            if target == "local" else
+            {"aws_model": spec["capabilities"]["model"]["bindings"]["aws"],
+             "ready_for_deployment": bool(spec["capabilities"]["model"]["bindings"]["aws"].get("model_id"))}
+        ),
         "limitations": (
             "Local providers are functional substitutes, not AWS emulators; "
             "Docker/Ollama hardware and model availability required."

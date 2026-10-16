@@ -1,0 +1,14 @@
+.git/
+.github/
+.env
+.env.*
+.venv/
+__pycache__/
+*.pyc
+*.pem
+*.key
+*credentials*
+reports/
+node_modules/
+cdk.out/
+infrastructure/cdk.out/
