@@ -9,6 +9,9 @@ description = "Offline-first agent architecture workbench with local and AWS tar
 requires-python = ">=3.11"
 dependencies = []
 
+[project.optional-dependencies]
+hf = ["huggingface_hub>=0.30,<2"]
+
 [project.scripts]
 agent-arch = "agent_arch.workbench:main"
 

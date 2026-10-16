@@ -17,7 +17,7 @@ DEFAULT_SPEC = ROOT / "architectures" / "portable-research.json"
 COMPOSE_FILE = ROOT / "deploy" / "local" / "compose.yaml"
 KNOWN_TOOLS = {"search_docs", "lookup_customer", "remember", "recall"}
 MAPPINGS = {
-    "model": {"local": "Ollama chat + tool calls", "aws": "Amazon Bedrock"},
+    "model": {"local": "Ollama or Hugging Face hosted chat (same local agent process)", "aws": "Amazon Bedrock"},
     "runtime": {"local": "Python tool-using HTTP agent", "aws": "AgentCore Runtime"},
     "memory": {"local": "SQLite session key/value", "aws": "AgentCore Memory"},
     "retrieval": {"local": "Lexical local document search", "aws": "Bedrock Knowledge Bases"},
@@ -44,8 +44,14 @@ def validated_spec(path):
     if (not set(tools) <= KNOWN_TOOLS or not set(allowed) <= set(tools)
             or len(set(tools)) != len(tools)):
         raise ValueError("Tools must be unique built-in names; policy allowed_tools subset")
-    if c["model"]["bindings"]["local"]["provider"] not in ("ollama", "rules"):
-        raise ValueError("Local target supports only ollama or rules model provider")
+    if c["model"]["bindings"]["local"]["provider"] not in ("ollama", "rules", "huggingface"):
+        raise ValueError("Local target supports only ollama, huggingface or rules model provider")
+    model_binding = c["model"]["bindings"]["local"]
+    if model_binding["provider"] != "rules" and not model_binding.get("model"):
+        raise ValueError("A concrete local or hosted model ID must be selected")
+    if model_binding["provider"] == "huggingface" and not isinstance(
+            model_binding.get("inference_provider", "auto"), str):
+        raise ValueError("inference_provider must be a string")
     for key in ("max_model_turns", "max_tool_calls"):
         value = spec["limits"].get(key)
         if not isinstance(value, int) or isinstance(value, bool) or not 1 <= value <= 30:
@@ -86,6 +92,10 @@ def compose_command(verb, spec_path):
     env = os.environ.copy()
     env["AGENT_SPEC"] = str(Path(spec_path).resolve().relative_to(ROOT))
     args = ["docker", "compose", "-f", str(COMPOSE_FILE)]
+    spec = validated_spec(spec_path)
+    model_provider = spec["capabilities"]["model"]["bindings"]["local"]["provider"]
+    if verb == "deploy" and model_provider == "ollama":
+        args += ["--profile", "ollama"]
     args += (["up", "-d", "--build"] if verb == "deploy" else ["down"])
     try:
         return subprocess.call(args, cwd=ROOT, env=env)

@@ -177,6 +177,12 @@ class LocalAgent:
             self.model = RulesModel()
         elif self.provider == "ollama":
             self.model = OllamaModel(model_name)
+        elif self.provider == "huggingface":
+            from .huggingface_provider import HuggingFaceChatModel
+            binding = spec["capabilities"]["model"]["bindings"]["local"]
+            self.model = HuggingFaceChatModel(
+                model_name,
+                provider=os.getenv("HF_INFERENCE_PROVIDER") or binding.get("inference_provider", "auto"))
         else:
             raise ValueError("Unsupported local model provider: " + self.provider)
 
@@ -208,7 +214,10 @@ class LocalAgent:
                 return {"answer": answer, "completed": bool(answer), "provider": self.provider,
                         "model": getattr(self.model, "model", "unknown"), "usage": total_usage,
                         "tool_calls": calls, "trace": trace, "model_turns": turn + 1}
-            # Preserve the assistant tool-call message for Ollama protocol continuity.
+            # IDs correlate assistant tool calls with tool responses in hosted OpenAI-style APIs.
+            for n, item in enumerate(tool_calls):
+                if not item.get("id"):
+                    item["id"] = "call_%s_%s" % (len(messages), n)
             messages.append({"role": "assistant", "content": message.get("content", ""),
                              "tool_calls": tool_calls})
             for tool in tool_calls:
@@ -227,5 +236,6 @@ class LocalAgent:
                     data = {"error": str(exc)}
                     trace.append({"tool": name, "status": "denied_or_invalid"})
                 messages.append({"role": "tool", "tool_name": name,
+                                 "tool_call_id": tool["id"],
                                  "content": json.dumps(data)})
         raise RuntimeError("Maximum model turn budget exceeded")

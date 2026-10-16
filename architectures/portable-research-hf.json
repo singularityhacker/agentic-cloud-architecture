@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "name": "enterprise-research-huggingface",
+  "scenario": "Research a synthetic customer's refund and retention policies using tools and persistent context.",
+  "capabilities": {
+    "model": {
+      "kind": "tool-chat",
+      "bindings": {
+        "local": {
+          "provider": "huggingface",
+          "model": "openai/gpt-oss-120b",
+          "inference_provider": "auto",
+          "note": "Example only. Confirm current inference provider, tool calling support, and price."
+        },
+        "aws": {
+          "provider": "bedrock",
+          "model_id": null
+        }
+      }
+    },
+    "runtime": {
+      "type": "tool-using-agent"
+    },
+    "memory": {
+      "type": "persistent",
+      "scope": "session"
+    },
+    "retrieval": {
+      "type": "document_search"
+    },
+    "tools": [
+      "search_docs",
+      "lookup_customer",
+      "remember",
+      "recall"
+    ],
+    "policy": {
+      "default": "deny",
+      "allowed_tools": [
+        "search_docs",
+        "lookup_customer",
+        "remember",
+        "recall"
+      ]
+    },
+    "observability": {
+      "traces": true
+    }
+  },
+  "limits": {
+    "max_model_turns": 6,
+    "max_tool_calls": 12
+  },
+  "evaluation": {
+    "fixture": "fixtures/enterprise_research.json"
+  },
+  "targets": {
+    "local": {
+      "provider": "docker-compose",
+      "mode": "hosted-model-no-local-model-weights"
+    },
+    "aws": {
+      "provider": "agentcore",
+      "status": "planned"
+    }
+  }
+}

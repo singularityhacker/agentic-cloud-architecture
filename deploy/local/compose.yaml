@@ -7,6 +7,8 @@ services:
       AGENT_SPEC: ${AGENT_SPEC:-architectures/portable-research.json}
       AGENT_MODEL_PROVIDER: ${AGENT_MODEL_PROVIDER:-}
       AGENT_MODEL: ${AGENT_MODEL:-}
+      HF_TOKEN: ${HF_TOKEN:-}
+      HF_INFERENCE_PROVIDER: ${HF_INFERENCE_PROVIDER:-}
       OLLAMA_BASE_URL: http://ollama:11434
       AGENT_MEMORY_DB: /data/memory.db
       AGENT_BIND: 0.0.0.0
@@ -16,9 +18,12 @@ services:
     volumes:
       - agent_memory:/data
     depends_on:
-      - ollama
+      ollama:
+        condition: service_started
+        required: false
     restart: unless-stopped
   ollama:
+    profiles: ["ollama"]
     image: ollama/ollama:latest
     volumes:
       - ollama_models:/root/.ollama
