@@ -147,7 +147,9 @@ def bench(profile, driver=None, endpoint=None, token_env="AGENT_API_TOKEN", time
             usage = {}
         outcomes.append({"task_id": task["id"], "success": correct, "attempts": attempts,
                          "elapsed_ms": elapsed_ms, "answer": response.get("answer") if response else None,
-                         "error": error, "usage": usage})
+                         "error": error, "usage": usage,
+                         "provider": response.get("provider") if response else None,
+                         "model": response.get("model") if response else None})
     success = sum(x["success"] for x in outcomes)
     observed_model_estimate = None
     if mode == "http" and all("input_tokens" in o["usage"] and "output_tokens" in o["usage"] for o in outcomes):
@@ -162,8 +164,11 @@ def bench(profile, driver=None, endpoint=None, token_env="AGENT_API_TOKEN", time
             observed_model_estimate = None
     return {
         "profile": profile["id"], "driver": mode,
-        "evidence_class": "SYNTHETIC RUNNER SELF-TEST: NOT LLM OR AWS PERFORMANCE"
-        if mode == "fixture" else "HTTP AGENT TASK EVALUATION: NOT AWS LOAD TEST",
+        "evidence_class": ("SYNTHETIC RUNNER SELF-TEST: NOT LLM OR AWS PERFORMANCE"
+        if mode == "fixture" else
+        "DETERMINISTIC RULE-BASED HTTP SMOKE TEST: NOT LLM OR AWS PERFORMANCE"
+        if any(o["provider"] == "rules" for o in outcomes) else
+        "HTTP AGENT TASK EVALUATION: NOT AWS LOAD TEST"),
         "total_tasks": len(outcomes), "successful_tasks": success,
         "success_rate": round(success / len(outcomes), 4),
         "attempts": sum(x["attempts"] for x in outcomes),

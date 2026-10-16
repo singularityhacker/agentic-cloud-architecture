@@ -22,3 +22,16 @@ jobs:
       - run: agent-arch plan --target local
       - run: agent-arch plan --target aws
       - run: docker compose -f deploy/local/compose.yaml config --quiet
+      - name: Local HTTP end-to-end smoke (deterministic, no LLM)
+        run: |
+          AGENT_MODEL_PROVIDER=rules python -m agent_arch.local_service &
+          server_pid=$!
+          trap 'kill "$server_pid"' EXIT
+          for attempt in 1 2 3 4 5 6; do
+            if curl --fail --silent http://127.0.0.1:8000/health; then
+              break
+            fi
+            sleep 1
+          done
+          agent-arch benchmark --target local --output reports/ci-smoke.json
+          python -c 'import json; r=json.load(open("reports/ci-smoke.json")); assert r["success_rate"] == 1.0 and "RULE-BASED" in r["evidence_class"]'

@@ -89,11 +89,11 @@ agent-arch benchmark --target local   # Real local-model endpoint, not a synthet
 agent-arch stop --target local
 ~~~
 
-The first model pull downloads weights and needs local RAM/disk capacity; the benchmark requires Docker and a pulled model. See [local runtime](docs/local-runtime.md). For a **no-model smoke test**, set `AGENT_MODEL_PROVIDER=rules` for the local agent container; results must be labeled deterministic, not agent intelligence.
+The first model pull downloads weights and needs local RAM/disk capacity; the benchmark requires Docker and a pulled model. See [local runtime](docs/local-runtime.md). For a **no-model smoke test**, run `AGENT_MODEL_PROVIDER=rules python -m agent_arch.local_service` directly, then run `agent-arch benchmark --target local` in another terminal. The report labels rule-based execution as deterministic, not agent intelligence.
 
 ### Declare an architecture
 
-[Portable enterprise research example](architectures/portable-research.json):
+[Portable enterprise research example](architectures/portable-research.json) (abridged excerpt; the linked file is the complete executable specification):
 
 ~~~json
 {
@@ -111,7 +111,9 @@ The first model pull downloads weights and needs local RAM/disk capacity; the be
 }
 ~~~
 
-The model binding is explicit per target: no AWS model is selected yet, so the AWS deployment cannot silently pick a different one. For an infrastructure comparison, verify model/version parity; otherwise label it a combined model-and-infrastructure comparison.\n\nThis capability specification is separate from the older `architectures/*.json` **cost/benchmark profiles**. The local runtime implements the named subset. AWS mappings are specified but not a universal CDK compiler. Details: [schema and contracts](docs/capability-parity.md).
+The model binding is explicit per target: no AWS model is selected yet, so the AWS deployment cannot silently pick a different one. For an infrastructure comparison, verify model/version parity; otherwise label it a combined model-and-infrastructure comparison.
+
+This capability specification is separate from the older `architectures/*.json` **cost/benchmark profiles**. The local runtime implements the named subset. AWS mappings are specified but not a universal CDK compiler. Details: [schema and contracts](docs/capability-parity.md).
 
 ## Architecture development workflow
 

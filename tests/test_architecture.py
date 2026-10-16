@@ -47,6 +47,8 @@ class ProfileTests(unittest.TestCase):
             self.assertEqual(result["successful_tasks"], result["total_tasks"])
             self.assertEqual(result["total_tasks"], 4)
             self.assertEqual(result["driver"], "http")
+            self.assertIn("RULE-BASED", result["evidence_class"])
+            self.assertTrue(all(x["provider"] == "rules" for x in result["results"]))
 
     def test_http_uses_no_expected(self):
         from unittest.mock import patch

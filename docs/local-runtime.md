@@ -31,7 +31,13 @@ curl -s http://127.0.0.1:8000/agent -H 'Content-Type: application/json' \
 
 **Components actually exercised:** model -> tool selection -> default-deny tool dispatch -> lexical document/customer lookup -> bounded model loop; SQLite persists scoped key/value memories; JSON responses include tool traces and model usage. Synthetic corporate records are under `knowledge/`. The service is bound to localhost on the host; do not expose it to untrusted networks. This is a prototype, not a hardened, authenticated multitenant API.
 
-For a model-free deterministic smoke test, start the agent container with `AGENT_MODEL_PROVIDER=rules` (through Compose environment configuration) and run the same benchmark. Rule-mode results exercise plumbing only, not LLM reasoning quality.
+For a model-free deterministic smoke test, skip Docker entirely and start the HTTP service in terminal one:
+
+~~~bash
+AGENT_MODEL_PROVIDER=rules python -m agent_arch.local_service
+~~~
+
+Run `agent-arch benchmark --target local` in terminal two. The benchmark tags rule-mode results as deterministic; this exercises protocol, tools, memory, retrieval and scoring **but not model reasoning**.
 
 ## Why it is not literally AgentCore
 

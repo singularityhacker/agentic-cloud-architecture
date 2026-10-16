@@ -2,7 +2,9 @@
 
 The platform should **specify intent once** and use provider-specific adapters for execution. A capability is an interface with explicit semantics, permissions and limits—not the name of an AWS product.
 
-A model capability declares target-specific provider bindings rather than requiring the local Ollama model name to be treated as an AWS Bedrock model ID. An unset AWS model ID is an intentionally incomplete deployment prerequisite.\n\n## Contract map
+A model capability declares target-specific provider bindings rather than requiring the local Ollama model name to be treated as an AWS Bedrock model ID. An unset AWS model ID is an intentionally incomplete deployment prerequisite.
+
+## Contract map
 
 | Capability | Portable contract | Local baseline | Enterprise mapping | Current status |
 |---|---|---|---|---|
