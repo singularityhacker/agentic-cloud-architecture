@@ -140,6 +140,17 @@ def main(argv=None):
             p.add_argument("--timeout", type=float, default=120)
             p.add_argument("--output", type=Path)
             p.add_argument("--allow-paid", action="store_true")
+    model_bench = sub.add_parser("model-benchmark", help="Benchmark specialist and generalist task models")
+    model_bench.add_argument("--experiment", type=Path, default=ROOT / "experiments/finance-sentiment.json")
+    model_bench.add_argument("--candidate", required=True)
+    model_bench.add_argument("--max-tasks", type=int, default=20)
+    model_bench.add_argument("--allow-paid", action="store_true")
+    model_bench.add_argument("--output", type=Path)
+    discover = sub.add_parser("model-search", help="Search the Hugging Face model Hub (network, no inference)")
+    discover.add_argument("--task", default="text-classification")
+    discover.add_argument("--search")
+    discover.add_argument("--hosted-only", action="store_true")
+    discover.add_argument("--limit", type=int, default=10)
     comp = sub.add_parser("compare")
     comp.add_argument("--targets", default="local,aws", help="local,aws")
     comp.add_argument("--local-endpoint", default="http://127.0.0.1:8000/agent")
@@ -150,6 +161,32 @@ def main(argv=None):
     comp.add_argument("--timeout", type=float, default=120)
     args = parser.parse_args(argv)
     try:
+        if args.command == "model-benchmark":
+            from agent_arch.domain_bench import experiment_from, measure
+            experiment, tasks = experiment_from(args.experiment)
+            report = measure(experiment, tasks, args.candidate,
+                             max_tasks=args.max_tasks, allow_paid=args.allow_paid)
+            write_report(report, args.output)
+            return 0
+        if args.command == "model-search":
+            if not 1 <= args.limit <= 50:
+                raise ValueError("--limit must be 1..50")
+            try:
+                from huggingface_hub import HfApi
+            except ImportError as exc:
+                raise ValueError("Install optional Hugging Face SDK with pip install -e '.[hf]'") from exc
+            models = HfApi().list_models(
+                pipeline_tag=args.task, search=args.search,
+                inference="warm" if args.hosted_only else None,
+                sort="downloads", limit=args.limit)
+            write_report({"query_task": args.task, "hosted_only": args.hosted_only,
+                          "warning": "Listing on Hub is not proof a chosen model/provider supports your inference method.",
+                          "models": [{"id": info.id, "sha": getattr(info, "sha", None),
+                                      "downloads": getattr(info, "downloads", None),
+                                      "pipeline": getattr(info, "pipeline_tag", None),
+                                      "url": "https://huggingface.co/" + info.id}
+                                     for info in models]}, None)
+            return 0
         spec = validated_spec(args.spec)
         if args.command == "plan":
             write_report(plan(spec, args.target), None)

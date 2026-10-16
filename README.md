@@ -8,7 +8,7 @@ This is **not** a course or a cloud emulator. It is a collection of reference pa
 
 ## The central abstraction: capabilities, not vendors
 
-An agent needs intelligence, memory, knowledge retrieval, tools, identity/policy, execution, and observability. Whether those capabilities are provided by a laptop or AWS should be a deployment choice, not a complete rewrite.
+An agent needs intelligence, memory, knowledge retrieval, tools, identity/policy, execution, and observability. **Model inference is independent of agent hosting**: a laptop-hosted agent can use a Hugging Face hosted model, while an agent hosted on AWS may call a non-Bedrock provider. Whether those capabilities are provided by a laptop or AWS should be a deployment choice, not a complete rewrite.
 
 ~~~text
                  BUSINESS SCENARIO + ACCEPTANCE TESTS
@@ -114,6 +114,43 @@ The first model pull downloads weights and needs local RAM/disk capacity; the be
 The model binding is explicit per target: no AWS model is selected yet, so the AWS deployment cannot silently pick a different one. For an infrastructure comparison, verify model/version parity; otherwise label it a combined model-and-infrastructure comparison.
 
 This capability specification is separate from the older `architectures/*.json` **cost/benchmark profiles**. The local runtime implements the named subset. AWS mappings are specified but not a universal CDK compiler. Details: [schema and contracts](docs/capability-parity.md).
+
+## Model specialization and Hugging Face
+
+**Specialized models are components, not necessarily chatbots.** A FinBERT sentiment classifier may offer valuable finance-specific signal without being capable of executing tools. A biomedical NER model, embedding model or reranker likewise needs a task-specific contract. This repository distinguishes:
+
+- **Agent chat inference:** Ollama locally or Hugging Face Inference Providers through a hosted chat adapter. The existing Python agent, tool schemas and task evaluator stay the same; hosted calls can incur charges.
+- **Task-specific inference:** Specialist text classifiers versus a generalist LLM prompted to emit the same labels, evaluated against exactly the same labeled examples.
+- **Hosting and cloud architecture:** Separate axes. AWS Bedrock/SageMaker/AgentCore are enterprise targets; no assumption that arbitrary Hub models are available through Bedrock.
+
+### Try Hugging Face hosted inference (opt-in)
+
+~~~bash
+python -m pip install -e '.[hf]'
+# Export HF_TOKEN from your Hugging Face account (do not commit it).
+agent-arch model-search --task text-classification --search finbert --limit 10
+agent-arch model-search --task text-classification --hosted-only --limit 10
+agent-arch model-benchmark --candidate majority                   # Offline, free baseline
+agent-arch model-benchmark --candidate finbert --max-tasks 15 --allow-paid
+agent-arch model-benchmark --candidate generalist --max-tasks 15 --allow-paid
+~~~
+
+These are *different* inference workloads with the same finance sentiment labels. Check that the selected models are actually served by the provider; the Hub catalog is much larger than the set currently hosted by Inference Providers. Models may be gated, differently licensed, or unavailable. `--allow-paid` explicitly opts into API charges and `--max-tasks` bounds requests. The included finance set contains only **15 synthetic hand-labeled examples** and cannot support authoritative performance conclusions. There are **no published model performance results** yet.
+
+To use a hosted conversational model inside the **same local tool-using research agent** instead of downloading Ollama weights:
+
+~~~bash
+export HF_TOKEN=your_token_here
+python -m pip install -e '.[hf]'
+agent-arch --spec architectures/portable-research-hf.json plan --target local
+agent-arch --spec architectures/portable-research-hf.json deploy --target local
+agent-arch --spec architectures/portable-research-hf.json benchmark --target local
+agent-arch --spec architectures/portable-research-hf.json stop --target local
+~~~
+
+The hosted example assumes a Hugging Face provider supports the selected chat model **and tool calling**. If it does not, change the model/provider or use a dedicated endpoint. Hosted calls are not free by default, regardless of where the agent container runs. Keep prompts, models, providers and revisions as stable as possible between comparison runs; report unpinned details as limitations.
+
+See **[Domain-specific model strategy](docs/model-strategy.md)** and [example experiment](experiments/finance-sentiment.json).
 
 ## Architecture development workflow
 

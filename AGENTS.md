@@ -30,3 +30,8 @@ agent-arch stop --target local
 ~~~
 
 See [README](README.md), [capability parity](docs/capability-parity.md) and [roadmap](docs/roadmap.md). Extend one scenario and one contract at a time; write a design decision before substantial new providers.
+
+
+## Hugging Face specialization
+
+Agent runtime and model provider are independent. The local Python agent may use `ollama` or `huggingface` for chat. `experiments/` holds labeled benchmarks for task-specific models, which should not be squeezed into conversational agent interfaces. A model uploaded to Hub is not necessarily hosted by an Inference Provider. Paid evaluation requires `--allow-paid`, bounded `--max-tasks`, explicit model/provider metadata, and no credentials in logs. Publish outcomes only after real runs, with failure counts and unknown cost marked as unknown—not zero.

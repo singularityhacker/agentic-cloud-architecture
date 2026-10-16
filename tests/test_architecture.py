@@ -9,7 +9,7 @@ class ProfileTests(unittest.TestCase):
     def test_profiles_validate(self):
         for path in (ROOT / "architectures").glob("*.json"):
             with self.subTest(path=path.name):
-                if path.name == "portable-research.json":
+                if path.name.startswith("portable-research"):
                     from agent_arch.workbench import validated_spec
                     self.assertEqual(validated_spec(path)["schema_version"], 1)
                 else:

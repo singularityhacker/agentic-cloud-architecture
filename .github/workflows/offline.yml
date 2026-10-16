@@ -35,3 +35,5 @@ jobs:
           done
           agent-arch benchmark --target local --output reports/ci-smoke.json
           python -c 'import json; r=json.load(open("reports/ci-smoke.json")); assert r["success_rate"] == 1.0 and "RULE-BASED" in r["evidence_class"]'
+      - run: agent-arch --spec architectures/portable-research-hf.json plan --target local
+      - run: agent-arch model-benchmark --candidate majority --output reports/ci-majority.json

@@ -41,3 +41,10 @@ The runtime uses bounded tool calls/model iterations and a default-deny allowlis
 - `architectures/aws-queue-worker.json` and `local-*.json`: **metered scenario profiles** for the original offline estimator and retry-fixture benchmark.
 
 These deliberately coexist while the new specification-to-infrastructure compiler is developed; do not assume one schema can be passed into every older command.
+
+
+## Hosted models are a separate dimension
+
+The local agent can now choose `huggingface` as its **model provider**, while its runtime, memory and tools remain local. Hugging Face Inference Providers offers hosted APIs, not a replica of Bedrock. Some Hub models are not hosted; not every hosted chat model supports function calling.
+
+Task-specific models (classification, NER, reranking, embeddings) do not automatically conform to the conversational tool-use interface. They get independent inference and evaluation adapters. See [model strategy](model-strategy.md). Do not conflate model quality gains from changing weights with advantages of swapping local containers for AgentCore Runtime.

@@ -31,3 +31,17 @@ AWS agent-service catalog, indicative rate card, local preflight spending thresh
 - [ ] Scenario decision reports explaining security, correctness, latency and economics
 
 Research priorities: agent vs workflow determinism; persistent memory value; retrieval strategy; specialized multi-agent overhead; AgentCore vs ECS vs Lambda.
+
+
+## Stage 1b — Model independence and specialized model evaluation
+
+- [x] Hugging Face hosted chat adapter for the existing local tool-using agent (optional SDK)
+- [x] Explicit model/provider binding per target; Ollama not required for hosted-model workflow
+- [x] Task-specific finance sentiment benchmark: majority baseline, hosted specialist classifier, hosted chat classifier
+- [x] Hugging Face Hub discovery CLI for candidate search (including hosted-only filter)
+- [x] CI using mocked inference only; no automatic paid calls or downloaded weights
+- [ ] Run real paid inference on candidate models with explicit operator permission
+- [ ] Provider pinning, live revision metadata and billing reconciliation
+- [ ] Additional specialization tasks: biomedical entity recognition, reranking, OCR, risk flags and domain embeddings
+- [ ] Pluggable evaluation adapters for classification, token tagging, ranking, retrieval, ASR and multimodal workloads
+- [ ] Compare specialized-model pipeline against generalist-only end-to-end agent on realistic business outcomes
