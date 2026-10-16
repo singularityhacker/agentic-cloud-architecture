@@ -1,0 +1,52 @@
+{
+  "purpose": "Research shortlist of niche model repositories; not performance rankings or hosting guarantees",
+  "last_reviewed": "2026-10-15",
+  "models": [
+    {
+      "id": "ProsusAI/finbert",
+      "task": "text-classification",
+      "domain": "finance",
+      "role": "sentiment of financial documents",
+      "url": "https://huggingface.co/ProsusAI/finbert",
+      "benchmark": "experiments/finance-sentiment.json",
+      "hosted_availability": "verify"
+    },
+    {
+      "id": "d4data/biomedical-ner-all",
+      "task": "token-classification",
+      "domain": "biomedicine",
+      "role": "extract biomedical entities from text",
+      "url": "https://huggingface.co/d4data/biomedical-ner-all",
+      "benchmark": null,
+      "hosted_availability": "verify"
+    },
+    {
+      "id": "BAAI/bge-reranker-v2-m3",
+      "task": "text-ranking",
+      "domain": "retrieval",
+      "role": "multilingual query/passage reranking",
+      "url": "https://huggingface.co/BAAI/bge-reranker-v2-m3",
+      "benchmark": null,
+      "hosted_availability": "verify"
+    },
+    {
+      "id": "openai/gpt-oss-120b",
+      "task": "text-generation",
+      "domain": "generalist comparator",
+      "role": "chat-based control for specialist model task",
+      "url": "https://huggingface.co/openai/gpt-oss-120b",
+      "benchmark": "experiments/finance-sentiment.json",
+      "hosted_availability": "verify"
+    }
+  ],
+  "criteria": [
+    "same task/data contract",
+    "held-out examples",
+    "macro metrics",
+    "cost per successful task",
+    "provider availability",
+    "license and provenance",
+    "revision pinned if supported",
+    "security and data handling"
+  ]
+}

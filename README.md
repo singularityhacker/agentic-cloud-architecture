@@ -150,7 +150,7 @@ agent-arch --spec architectures/portable-research-hf.json stop --target local
 
 The hosted example assumes a Hugging Face provider supports the selected chat model **and tool calling**. If it does not, change the model/provider or use a dedicated endpoint. Hosted calls are not free by default, regardless of where the agent container runs. Keep prompts, models, providers and revisions as stable as possible between comparison runs; report unpinned details as limitations.
 
-See **[Domain-specific model strategy](docs/model-strategy.md)** and [example experiment](experiments/finance-sentiment.json).
+See **[Domain-specific model strategy](docs/model-strategy.md)**, the [curated niche-model candidates](models/candidates.json), and the [finance sentiment experiment](experiments/finance-sentiment.json).
 
 ## Architecture development workflow
 

@@ -54,3 +54,8 @@ Those additional task adapters are **planned**, not yet executable. Do not equat
 A **model specialization** experiment holds task labels and test data constant. An **infrastructure** comparison keeps model ID/version and, where possible, inference provider fixed. An **agent topology** comparison fixes models and tools, then changes orchestration or memory. If changing all three, label it a *system comparison*, not proof that specialized weights alone caused the difference.
 
 Respect licensing, gated terms, sensitive input restrictions, security of downloaded artifacts, and domain-specific evaluation standards before treating a model as deployable in an enterprise.
+
+
+## Curated candidate registry
+
+[models/candidates.json](../models/candidates.json) lists verified Hub repository identities and their *possible* uses. It is **not** a database of proven best-performing models, licensing approvals, hosted availability or current prices. Discovery and benchmarking remain separate phases. A model candidate gets promoted to a production architecture only after measurable held-out business outcomes, model card/licensing review, and deployment economics have been evaluated.

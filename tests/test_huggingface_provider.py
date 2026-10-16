@@ -46,6 +46,11 @@ class HFAdapterTests(unittest.TestCase):
         self.assertEqual(result["tool_calls"], 1)
         self.assertEqual(fake.messages_seen[1][-1]["tool_call_id"], "call_doc_1")
 
+    def test_spec_can_switch_local_model_to_hosted(self):
+        spec = validated_spec(ROOT / "architectures/portable-research-hf.json")
+        self.assertEqual(spec["capabilities"]["model"]["bindings"]["local"]["provider"],
+                         "huggingface")
+
     def test_hf_requires_token_when_real(self):
         with patch.dict("os.environ", {"HF_TOKEN": ""}):
             with self.assertRaisesRegex(ValueError, "HF_TOKEN"):
