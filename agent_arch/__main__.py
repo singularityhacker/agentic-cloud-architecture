@@ -128,7 +128,20 @@ def bench(profile, driver=None, endpoint=None, token_env="AGENT_API_TOKEN", time
             except Exception as exc:
                 error = str(exc)[:200]
         elapsed_ms = round((time.perf_counter() - start) * 1000, 3)
-        correct = response is not None and response["answer"].strip() == task["expected"].strip()
+        correct = False
+        if response is not None:
+            answer = response["answer"].strip()
+            if "expected" in task:
+                correct = answer == str(task["expected"]).strip()
+            elif "expected_contains" in task:
+                required = task["expected_contains"]
+                if not isinstance(required, list) or not required:
+                    raise ValueError("expected_contains must be a nonempty string list")
+                correct = all(isinstance(fragment, str) and
+                              fragment.casefold() in answer.casefold()
+                              for fragment in required)
+            else:
+                raise ValueError("Task missing expected or expected_contains")
         usage = response.get("usage", {}) if response else {}
         if not isinstance(usage, dict):
             usage = {}
