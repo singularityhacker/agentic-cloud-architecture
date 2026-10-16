@@ -1,0 +1,44 @@
+{
+  "id": "finance-sentiment",
+  "domain": "financial_nlp",
+  "task": "text-classification",
+  "source": "synthetic hand-authored examples, not an established benchmark",
+  "fixture": "fixtures/finance-sentiment.json",
+  "labels": [
+    "positive",
+    "negative",
+    "neutral"
+  ],
+  "candidates": {
+    "majority": {
+      "type": "majority-baseline",
+      "label": "neutral"
+    },
+    "finbert": {
+      "type": "hf-text-classification",
+      "model_id": "ProsusAI/finbert",
+      "inference_provider": "auto",
+      "revision": null,
+      "license": "check-model-card",
+      "notes": "Verify model is currently hosted by selected provider; Hub listing alone does not establish API availability."
+    },
+    "generalist": {
+      "type": "hf-chat-classification",
+      "model_id": "openai/gpt-oss-120b",
+      "inference_provider": "auto",
+      "revision": null,
+      "license": "check-model-card",
+      "notes": "General-purpose chat benchmark; may cost more and provider/model availability changes."
+    }
+  },
+  "evaluation": {
+    "metrics": [
+      "accuracy",
+      "macro_f1",
+      "p50_latency_ms",
+      "p95_latency_ms",
+      "estimated_inference_usd"
+    ],
+    "manual_review": "Synthetic gold labels may be ambiguous and require an independently curated test set before reporting performance claims."
+  }
+}

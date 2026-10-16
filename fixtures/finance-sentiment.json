@@ -1,0 +1,77 @@
+[
+  {
+    "id": "fin-01",
+    "text": "The firm reported record quarterly profits and raised its full-year guidance.",
+    "label": "positive"
+  },
+  {
+    "id": "fin-02",
+    "text": "Revenue grew 18% year over year, exceeding analyst expectations.",
+    "label": "positive"
+  },
+  {
+    "id": "fin-03",
+    "text": "The bank announced a dividend increase following stronger capital ratios.",
+    "label": "positive"
+  },
+  {
+    "id": "fin-04",
+    "text": "Operating margins improved as manufacturing costs declined.",
+    "label": "positive"
+  },
+  {
+    "id": "fin-05",
+    "text": "The company secured a new multiyear contract expected to increase revenue.",
+    "label": "positive"
+  },
+  {
+    "id": "fin-06",
+    "text": "The retailer cut its forecast after weaker-than-expected demand.",
+    "label": "negative"
+  },
+  {
+    "id": "fin-07",
+    "text": "Quarterly losses widened as the company faced rising operating costs.",
+    "label": "negative"
+  },
+  {
+    "id": "fin-08",
+    "text": "The manufacturer warned that a product recall could materially reduce earnings.",
+    "label": "negative"
+  },
+  {
+    "id": "fin-09",
+    "text": "Shares fell after management disclosed a liquidity shortfall.",
+    "label": "negative"
+  },
+  {
+    "id": "fin-10",
+    "text": "The lender recorded higher loan defaults and increased provisions.",
+    "label": "negative"
+  },
+  {
+    "id": "fin-11",
+    "text": "The board scheduled the annual general meeting for next month.",
+    "label": "neutral"
+  },
+  {
+    "id": "fin-12",
+    "text": "The company filed its quarterly financial statements on Tuesday.",
+    "label": "neutral"
+  },
+  {
+    "id": "fin-13",
+    "text": "A new chief compliance officer has been appointed.",
+    "label": "neutral"
+  },
+  {
+    "id": "fin-14",
+    "text": "The firm published its updated shareholder contact information.",
+    "label": "neutral"
+  },
+  {
+    "id": "fin-15",
+    "text": "Management confirmed that the earnings call begins at 9 a.m.",
+    "label": "neutral"
+  }
+]
