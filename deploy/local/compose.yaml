@@ -5,6 +5,7 @@ services:
       dockerfile: deploy/local/Dockerfile
     environment:
       AGENT_SPEC: ${AGENT_SPEC:-architectures/portable-research.json}
+      AGENT_FRAMEWORK: ${AGENT_FRAMEWORK:-}
       AGENT_MODEL_PROVIDER: ${AGENT_MODEL_PROVIDER:-}
       AGENT_MODEL: ${AGENT_MODEL:-}
       HF_TOKEN: ${HF_TOKEN:-}

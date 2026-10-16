@@ -63,3 +63,7 @@ agent-arch --spec architectures/portable-research-hf.json stop --target local
 The Dockerfile installs the optional Hugging Face SDK. Keep the access token in an environment variable rather than storing it in Git; remember that environment variables may be visible to anyone with access to the Docker host. The hosted model and its inference provider must **actually support chat completion and function calling**. The example ID is illustrative, not a live availability guarantee.
 
 This workflow may incur provider charges. Hosted-model benchmarks require `--allow-paid` even when the agent itself runs locally; this is an authorization prompt, not a hard dollar budget. For bounded specialist-model experiments, use `agent-arch model-benchmark --max-tasks N --allow-paid`. Do not send confidential datasets to hosted models without an approved data-processing agreement.
+
+## Alternative framework: Strands
+
+Use `AGENT_FRAMEWORK=strands` or the [Strands manifest](../architectures/portable-research-strands.json). Install `.[strands]` for direct Python execution; the Compose image includes it. Model and deployment choices remain independent. See [offline and Ollama examples](strands.md).

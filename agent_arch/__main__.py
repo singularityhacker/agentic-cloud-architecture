@@ -149,6 +149,9 @@ def bench(profile, driver=None, endpoint=None, token_env="AGENT_API_TOKEN", time
                          "elapsed_ms": elapsed_ms, "answer": response.get("answer") if response else None,
                          "error": error, "usage": usage,
                          "provider": response.get("provider") if response else None,
+                         "framework": response.get("framework") if response else None,
+                         "framework_version": response.get("framework_version") if response else None,
+                         "trace": response.get("trace", []) if response else [],
                          "model": response.get("model") if response else None})
     success = sum(x["success"] for x in outcomes)
     observed_model_estimate = None

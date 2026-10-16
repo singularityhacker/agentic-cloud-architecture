@@ -8,3 +8,4 @@ cdk.out/
 infrastructure/cdk.out/
 node_modules/
 reports/*.json
+*.egg-info/

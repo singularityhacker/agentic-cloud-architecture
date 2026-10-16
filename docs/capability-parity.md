@@ -8,6 +8,7 @@ A model capability declares target-specific provider bindings rather than requir
 
 | Capability | Portable contract | Local baseline | Enterprise mapping | Current status |
 |---|---|---|---|---|
+| Framework | bounded run -> answer/usage/tool trace | custom Python or Strands SDK | bring framework code to Runtime; managed Harness is a separate option | local: implemented; AWS: planned |
 | Model | messages + tool schemas -> text/tool calls + usage | Ollama native chat | Bedrock Converse / supported models | local: working; AWS: planned |
 | Agent lifecycle | run(task,session_id,limits) -> result/trace | Python HTTP worker | AgentCore Runtime | local: working; AWS: planned |
 | Tools | list/call(name,arguments) | built-in read and memory tools | AgentCore Gateway MCP targets | local: working; MCP: planned |
@@ -48,3 +49,17 @@ These deliberately coexist while the new specification-to-infrastructure compile
 The local agent can now choose `huggingface` as its **model provider**, while its runtime, memory and tools remain local. Hugging Face Inference Providers offers hosted APIs, not a replica of Bedrock. Some Hub models are not hosted; not every hosted chat model supports function calling.
 
 Task-specific models (classification, NER, reranking, embeddings) do not automatically conform to the conversational tool-use interface. They get independent inference and evaluation adapters. See [model strategy](model-strategy.md). Do not conflate model quality gains from changing weights with advantages of swapping local containers for AgentCore Runtime.
+
+## Framework independence
+
+`framework` selects `custom-python` (default) or `strands`, independently of model
+bindings and deployment targets. Both use the same tools, policy, memory and
+HTTP evaluation contract. Strands uses an optional pinned SDK and a text/tool
+chat bridge; native provider features are not implied. Offline SDK integration
+is implemented; real-model comparison is pending. See [examples and precise
+limitations](strands.md) and [ADR 003](adr-003.md).
+
+AgentCore Runtime hosts code; AgentCore Harness supplies a managed Strands-powered
+loop inside Runtime. Neither cloud integration is implemented here. SageMaker AI
+model training/fine-tuning/hosting is a separate ML lifecycle capability, not an
+agent orchestration framework.

@@ -14,3 +14,7 @@ The starter fixture benchmark is *not* a benchmark of AI reasoning. It is a func
 ### Research progression
 
 First establish deterministic enterprise tool environments, then plug in Strands/LangGraph/custom agents, then add OpenTelemetry tracing and live AWS sampling. [Inspect AI](https://inspect.aisi.org.uk/) and [τ²-Bench](https://github.com/sierra-research/tau2-bench) are useful references.
+
+## Framework comparisons
+
+Both custom Python and Strands use the same HTTP evaluator. Results retain the observed framework, SDK version (when provided), provider, model and tool traces. Rules executions remain synthetic smoke tests even when the real Strands SDK runs. Hold models, prompts, tools, fixtures and deployment fixed; see [Strands examples](strands.md).

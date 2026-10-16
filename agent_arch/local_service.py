@@ -4,16 +4,18 @@ import os
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
-from agent_arch.local_agent import LocalAgent, ROOT
+from agent_arch.local_agent import ROOT
+from agent_arch.frameworks import create_agent
+from agent_arch.workbench import validated_spec
 
 
 def configured_agent():
     spec_path = (ROOT / os.getenv("AGENT_SPEC", "architectures/portable-research.json")).resolve()
     if not spec_path.is_relative_to(ROOT):
         raise ValueError("AGENT_SPEC must stay within repository")
-    spec = json.loads(spec_path.read_text(encoding="utf-8"))
+    spec = validated_spec(spec_path)
     db = os.getenv("AGENT_MEMORY_DB", "/tmp/agentic-cloud-memory.db")
-    return LocalAgent(spec, memory_path=db)
+    return create_agent(spec, memory_path=db)
 
 
 AGENT = None
@@ -31,6 +33,7 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         if self.path == "/health":
             self.respond(200, {"ok": True, "model_provider": AGENT.provider,
+                               "framework": AGENT.framework,
                                "note": "Process alive; model availability not guaranteed"})
         else:
             self.respond(404, {"error": "not found"})

@@ -16,6 +16,7 @@ An agent needs intelligence, memory, knowledge retrieval, tools, identity/policy
                       DECLARATIVE SPECIFICATION
                   (capabilities, limits, workload)
                                  │
+             FRAMEWORK: CUSTOM PYTHON OR STRANDS AGENTS
                      AGENT APPLICATION / TOOL CONTRACTS
                            ┌─────┴─────┐
                        LOCAL         AWS
@@ -35,6 +36,43 @@ An agent needs intelligence, memory, knowledge retrieval, tools, identity/policy
 
 **Functional portability is not operational parity.** Local tools can establish correctness of prompts, business logic, retrieval, permissions, memory, and error handling. They cannot prove AWS autoscaling behavior, billing, cold starts, multi-tenant isolation, managed quotas, or security controls. Some AWS offerings are proprietary; a local adapter performs a comparable *role*, not the identical implementation.
 
+### Framework, model and deployment are three separate choices
+
+| Dimension | Responsibility | Choices in this repository |
+|---|---|---|
+| Agent framework | Own the reasoning and tool-use loop | Custom Python or **Strands Agents** (implemented) |
+| Model provider | Supply text and tool-call predictions | Ollama, deterministic rules, optional hosted Hugging Face (implemented); Bedrock (planned) |
+| Deployment | Host the agent process | Local Python / Docker Compose (implemented); AgentCore Runtime (planned) |
+
+Strands is an open-source SDK, not an AWS service. A Strands agent can run locally
+without Bedrock; AgentCore Runtime can host code built with other frameworks.
+The existing custom Python agent remains the default. Set `"framework": "strands"`
+in a capability manifest or `AGENT_FRAMEWORK=strands`; changing this does not
+change the model binding or deployment target. See the [runnable Strands examples](docs/strands.md)
+and [complete manifest](architectures/portable-research-strands.json).
+
+**AWS mental model:** Amazon Bedrock supplies managed model APIs. SageMaker AI
+supports preparing data, training/fine-tuning, evaluating and deploying your own
+models and ML pipelines; it is not the agent framework. Strands programs the
+agent loop. AgentCore Runtime hosts agent code with managed execution, isolation,
+sessions and scaling. **AgentCore Harness provides a managed orchestration loop,
+powered by Strands, configured with model/prompt/tools; it runs inside Runtime.**
+Harness and Runtime are different abstraction levels, not interchangeable names.
+Gateway connects tools, Memory manages memory, and Knowledge Bases supplies
+managed retrieval. This repository implements neither Harness configuration nor
+AgentCore deployment yet.
+
+Sources: [Strands SDK](https://strandsagents.com/docs/user-guide/sdk/quickstart/python/),
+[AWS Harness vs. Runtime](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/harness-vs-runtime.html),
+[SageMaker AI](https://docs.aws.amazon.com/sagemaker/latest/dg/whatis.html).
+
+```bash
+python -m pip install -e '.[strands]'   # Optional pinned Strands SDK
+python -m agent_arch.strands_demo      # Real SDK + rules + local tools; no inference
+# With an existing local Ollama server/model:
+python -m agent_arch.strands_demo --provider ollama
+```
+
 ### Agent-specific service parity
 
 | Agent capability | Local analogue | Enterprise AWS counterpart | Important mismatch |
@@ -50,7 +88,7 @@ An agent needs intelligence, memory, knowledge retrieval, tools, identity/policy
 | Evaluation | Fixture/HTTP runner | AgentCore Evaluations | Graders/tracing/managed integrations differ |
 | Telemetry | Structured local traces | CloudWatch, X-Ray, OTEL | Collection/retention and backend semantics differ |
 
-**Current status:** A real local Ollama-backed agent service, basic local memory/retrieval/tools/policy, a Docker Compose target, and benchmark integration are available alongside an older synthetic harness and AWS queue CDK skeleton. The AWS **AgentCore application deployment is not yet implemented**. The AWS target currently produces a mapping/plan and refuses to pretend that the existing queue stack deploys this agent. See [capability contracts and parity](docs/capability-parity.md).
+**Current status:** Custom Python and Strands framework options, a real local Ollama-backed agent service, basic local memory/retrieval/tools/policy, a Docker Compose target, and benchmark integration are available alongside an older synthetic harness and AWS queue CDK skeleton. The AWS **AgentCore application deployment is not yet implemented**. The AWS target currently produces a mapping/plan and refuses to pretend that the existing queue stack deploys this agent. See [capability contracts and parity](docs/capability-parity.md).
 
 ## Three levels of evidence
 

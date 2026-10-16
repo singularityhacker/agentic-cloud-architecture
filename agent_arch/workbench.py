@@ -12,6 +12,7 @@ import sys
 from urllib.parse import urlparse
 
 from agent_arch.__main__ import ROOT, bench
+from agent_arch.frameworks import FRAMEWORKS, selected_framework
 
 DEFAULT_SPEC = ROOT / "architectures" / "portable-research.json"
 COMPOSE_FILE = ROOT / "deploy" / "local" / "compose.yaml"
@@ -34,6 +35,8 @@ def validated_spec(path):
     spec = json.loads(spec_path.read_text(encoding="utf-8"))
     if spec.get("schema_version") != 1 or not isinstance(spec.get("name"), str):
         raise ValueError("Expected schema_version 1 and name string")
+    if spec.get("framework", "custom-python") not in FRAMEWORKS:
+        raise ValueError("Unsupported agent framework")
     c = spec["capabilities"]
     if c["policy"]["default"] != "deny":
         raise ValueError("Only deterministic default-deny local policies are supported")
@@ -65,6 +68,8 @@ def validated_spec(path):
 def plan(spec, target):
     return {
         "architecture": spec["name"], "target": target,
+        "framework": selected_framework(spec),
+        "deployment_binding": spec["targets"][target],
         "deployment_status": "working local Docker Compose target"
         if target == "local" else "PLANNED ONLY: no AgentCore deployment implementation",
         "capability_bindings": {
@@ -93,7 +98,8 @@ def compose_command(verb, spec_path):
     env["AGENT_SPEC"] = str(Path(spec_path).resolve().relative_to(ROOT))
     args = ["docker", "compose", "-f", str(COMPOSE_FILE)]
     spec = validated_spec(spec_path)
-    model_provider = spec["capabilities"]["model"]["bindings"]["local"]["provider"]
+    model_provider = (env.get("AGENT_MODEL_PROVIDER") or
+                      spec["capabilities"]["model"]["bindings"]["local"]["provider"])
     if verb == "deploy" and model_provider == "ollama":
         args += ["--profile", "ollama"]
     args += (["up", "-d", "--build"] if verb == "deploy" else ["down"])

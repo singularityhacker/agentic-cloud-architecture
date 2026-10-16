@@ -4,6 +4,7 @@ Capabilities: Ollama chat and tool calls, SQLite session memory, lexical documen
 search, synthetic customer lookup, deterministic default-deny tool policy.
 The 'rules' model is a transparent smoke-test model, not machine intelligence.
 """
+from contextlib import closing
 import json
 import os
 from pathlib import Path
@@ -15,6 +16,19 @@ ROOT = Path(__file__).resolve().parents[1]
 STOPWORDS = {"a", "an", "and", "are", "at", "by", "for", "from", "how", "in",
              "is", "it", "many", "of", "on", "our", "the", "to", "what",
              "which", "with", "after", "does", "do", "we", "please", "reply", "briefly"}
+
+
+SYSTEM_PROMPT = (
+    "You are an enterprise research agent operating on synthetic corporate data. "
+    "Use tools to look up records and policies before answering. Prefer cited source names. "
+    "Never invent policy facts. Do not claim an action occurred unless a tool completed it. "
+    "You may only use the available tools. Answer briefly and accurately."
+)
+
+
+def validate_prompt(text):
+    if not isinstance(text, str) or not text.strip() or len(text) > 5000:
+        raise ValueError("Prompt must have 1..5000 characters")
 
 
 def terms(text):
@@ -49,19 +63,19 @@ class SQLiteMemory:
     def __init__(self, database):
         self.database = str(database)
         Path(self.database).parent.mkdir(parents=True, exist_ok=True)
-        with sqlite3.connect(self.database, timeout=5) as conn:
+        with closing(sqlite3.connect(self.database, timeout=5)) as conn, conn:
             conn.execute("""CREATE TABLE IF NOT EXISTS memories (
                          session TEXT NOT NULL, key TEXT NOT NULL,
                          value TEXT NOT NULL, PRIMARY KEY(session, key))""")
 
     def remember(self, session, key, value):
-        with sqlite3.connect(self.database, timeout=5) as conn:
+        with closing(sqlite3.connect(self.database, timeout=5)) as conn, conn:
             conn.execute("INSERT OR REPLACE INTO memories(session,key,value) VALUES(?,?,?)",
                          (session, key, value))
         return {"stored": True, "key": key}
 
     def recall(self, session, key):
-        with sqlite3.connect(self.database, timeout=5) as conn:
+        with closing(sqlite3.connect(self.database, timeout=5)) as conn, conn:
             found = conn.execute("SELECT value FROM memories WHERE session=? AND key=?",
                                  (session, key)).fetchone()
         return {"key": key, "value": found[0] if found else None}
@@ -165,6 +179,8 @@ class RulesModel:
 
 
 class LocalAgent:
+    framework = "custom-python"
+
     def __init__(self, spec, memory_path, provider=None, knowledge=None):
         self.spec = spec
         self.knowledge = knowledge or Knowledge()
@@ -187,15 +203,10 @@ class LocalAgent:
             raise ValueError("Unsupported local model provider: " + self.provider)
 
     def run(self, text, session_id="default"):
-        if not isinstance(text, str) or not text.strip() or len(text) > 5000:
-            raise ValueError("Prompt must have 1..5000 characters")
+        validate_prompt(text)
         session_id = str(session_id)[:100]
         messages = [
-            {"role": "system", "content": (
-                "You are an enterprise research agent operating on synthetic corporate data. "
-                "Use tools to look up records and policies before answering. Prefer cited source names. "
-                "Never invent policy facts. Do not claim an action occurred unless a tool completed it. "
-                "You may only use the available tools. Answer briefly and accurately.")},
+            {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": text},
         ]
         calls, trace = 0, []
@@ -212,6 +223,7 @@ class LocalAgent:
             if not tool_calls:
                 answer = message.get("content", "").strip()
                 return {"answer": answer, "completed": bool(answer), "provider": self.provider,
+                        "framework": self.framework,
                         "model": getattr(self.model, "model", "unknown"), "usage": total_usage,
                         "tool_calls": calls, "trace": trace, "model_turns": turn + 1}
             # IDs correlate assistant tool calls with tool responses in hosted OpenAI-style APIs.

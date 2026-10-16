@@ -45,3 +45,17 @@ Research priorities: agent vs workflow determinism; persistent memory value; ret
 - [ ] Additional specialization tasks: biomedical entity recognition, reranking, OCR, risk flags and domain embeddings
 - [ ] Pluggable evaluation adapters for classification, token tagging, ranking, retrieval, ASR and multimodal workloads
 - [ ] Compare specialized-model pipeline against generalist-only end-to-end agent on realistic business outcomes
+
+## Stage 1c — Framework independence
+
+- [x] Independent framework selection: custom Python (backward-compatible default) and Strands
+- [x] Optional pinned Strands SDK; real SDK rules demo and local Ollama example
+- [x] Shared provider, tool, memory and policy contracts with bounded Strands execution
+- [x] HTTP benchmark compatibility with observed framework/version and tool traces
+- [x] Offline mocks testing actual SDK, limits, failure paths and session isolation
+- [ ] Repeated real-model framework comparisons with fixed inputs and recorded conditions
+- [ ] Native Strands providers and MCP integrations with conformance tests
+- [ ] AgentCore Runtime deployment adapter for either framework
+- [ ] Separate managed AgentCore Harness configuration path and comparison
+
+The available Strands examples do not establish real-model quality or cloud parity.
