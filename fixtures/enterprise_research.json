@@ -1,0 +1,42 @@
+[
+  {
+    "id": "policy-refund",
+    "input": "What is Northstar's refund approval threshold? Reply with the monetary amount.",
+    "context": {
+      "session_id": "benchmark"
+    },
+    "expected_contains": [
+      "$2,500"
+    ]
+  },
+  {
+    "id": "policy-retention",
+    "input": "How many days are ordinary support tickets retained after closure at Northstar? Reply briefly.",
+    "context": {
+      "session_id": "benchmark"
+    },
+    "expected_contains": [
+      "30"
+    ]
+  },
+  {
+    "id": "policy-security",
+    "input": "Which team must handle suspected account takeover according to our policies? Reply briefly.",
+    "context": {
+      "session_id": "benchmark"
+    },
+    "expected_contains": [
+      "security"
+    ]
+  },
+  {
+    "id": "customer-tier",
+    "input": "What service tier is customer cust-100 on? Reply briefly.",
+    "context": {
+      "session_id": "benchmark"
+    },
+    "expected_contains": [
+      "enterprise"
+    ]
+  }
+]

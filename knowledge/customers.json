@@ -1,0 +1,16 @@
+[
+  {
+    "id": "cust-100",
+    "name": "Northstar",
+    "tier": "enterprise",
+    "region": "US",
+    "account_owner": "Morgan"
+  },
+  {
+    "id": "cust-200",
+    "name": "Eastwind",
+    "tier": "standard",
+    "region": "EU",
+    "account_owner": "Casey"
+  }
+]

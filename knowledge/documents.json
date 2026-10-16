@@ -1,0 +1,22 @@
+[
+  {
+    "id": "refunds",
+    "title": "Refund authorization",
+    "text": "Northstar's refund approval threshold is $2,500. Refunds above $2,500 require finance director authorization; any refund requires a logged customer case."
+  },
+  {
+    "id": "retention",
+    "title": "Data retention",
+    "text": "Northstar retains standard support tickets for 30 days after closure. Enterprise audit logs are retained for 365 days under a separate schedule."
+  },
+  {
+    "id": "escalation",
+    "title": "Security escalation",
+    "text": "Suspected account takeover and access-token leaks must be escalated to the security team. The agent must never issue refunds or revoke credentials without approval."
+  },
+  {
+    "id": "tiers",
+    "title": "Service level tiers",
+    "text": "Northstar enterprise customers receive a 4-hour critical-incident response target. Standard customers have a 24-hour target."
+  }
+]

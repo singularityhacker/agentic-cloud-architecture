@@ -1,28 +1,32 @@
-# Engineering instructions for coding agents
+# Instructions for coding agents
 
-Goal: turn business scenarios into reproducible agent infrastructure decisions and empirical comparisons, AWS-first but cloud-neutral at the evaluation boundary.
+This repository is an **agent architecture workbench**, not just an AWS infrastructure sample.
 
-## Working sequence
+## Mission
 
-1. Begin with a business scenario, invariants, threat model, success criteria and expected usage.
-2. Choose a [pattern](patterns/README.md) and create a JSON profile in architectures/ modeled on aws-queue-worker.json.
-3. Estimate spend with python -m agent_arch estimate PROFILE; run guard; document which services are omitted.
-4. For an AWS topology, modify/add CDK constructs in infrastructure/ and run cdk synth. Profiles are currently scenario and estimate specifications, **not** an automatic arbitrary-profile-to-CDK compiler.
-5. Build test fixtures with verifiable outcomes, not just LLM-as-judge prose.
-6. Run local validations and baseline evaluations. Clearly classify output as synthetic, real-agent, or live AWS. Never claim local fixture success is evidence of LLM quality.
-7. Compare alternatives at fixed model/version, prompts, tools and workload. Write down trade-offs, failure modes, limits and teardown steps.
-8. When touching paid infrastructure, do not deploy unless directly instructed to. Never commit keys, data or billing credentials.
+Take a business scenario and define its agent capabilities, build a working **local** version, verify measurable business outcomes, then provision the corresponding **managed AWS** variant only when authorized. Explain trade-offs with evidence and a transparent cost model.
 
-## Commands
+## Non-negotiable rules
 
-- python -m unittest discover -s tests -v
-- python -m agent_arch catalog
-- python -m agent_arch compare architectures/local-direct.json architectures/local-retry.json
-- python -m agent_arch estimate architectures/aws-queue-worker.json
-- python -m agent_arch guard architectures/aws-queue-worker.json
-- python scripts/aws_cost_snapshot.py --help
-- cd infrastructure && cdk synth (requires extra CDK dependencies; does not provision resources)
+1. Separate *portable behavior contracts* from cloud-specific provider implementations. Never claim a SQLite memory table is identical to AgentCore Memory, lexical retrieval equals Knowledge Bases, or a local allowlist equals Cedar policy evaluation.
+2. Keep a precise status table: **implemented / partial / planned**, and distinguish rule-based synthetic plumbing from real-model evaluation.
+3. Do not deploy AWS automatically or configure limitless execution. Require explicit, audited cloud opt-in, bounded invocation counts, cleanup plans and budget review.
+4. Keep fixtures independent of model prompts. Never send answer keys to agent endpoints.
+5. Use realistic scenarios with verifiable outcomes and repeat trials. Publish model versions, hardware, prompts, tool traces, costs and conditions for comparison.
+6. Keep CI free of AWS credentials, model downloads and cloud deployment.
+7. Protect the README from self-promotional copy; lead with architecture, engineering and empirical evidence.
 
-## Design principles
+## Development commands
 
-Evidence over vendor claims. Explicit assumptions over synthetic cost precision. Deterministic policy gates over model-based authorization. Small blast radius and bounded concurrency. Every new architecture pattern should be tied to a realistic business scenario and measurable success conditions.
+~~~bash
+python -m unittest discover -s tests -v
+python -m agent_arch estimate architectures/aws-queue-worker.json
+python -m pip install -e .
+agent-arch plan --target local
+agent-arch plan --target aws
+agent-arch deploy --target local
+agent-arch benchmark --target local
+agent-arch stop --target local
+~~~
+
+See [README](README.md), [capability parity](docs/capability-parity.md) and [roadmap](docs/roadmap.md). Extend one scenario and one contract at a time; write a design decision before substantial new providers.

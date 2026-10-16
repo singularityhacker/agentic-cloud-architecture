@@ -1,9 +1,33 @@
-# Roadmap and current status
+# Roadmap
 
-**Implemented:** scenario-oriented JSON profiles; offline rate-card estimate + cap check; deterministic retry/score benchmark; optional real-agent HTTP adapter; SQS + Lambda + DynamoDB + S3 CDK reference; AWS service catalog and architecture decision briefs; GitHub CI without AWS deployment.
+## Stage 0 — Baseline: DONE
+AWS agent-service catalog, indicative rate card, local preflight spending threshold, deterministic synthetic retry harness, HTTP evaluator, AWS CDK queue-worker reference, scenario pattern briefs and offline CI.
 
-**Next:** richer stateful evaluation fixtures, task-level graders and repeated-run statistics; Bedrock/AgentCore agent adapters; OpenTelemetry traces, cost per success, load generation; profile-to-CDK mapping for supported patterns, real cloud deployments, cost reconciliation and teardown automation; optional Budgets as code.
+## Stage 1 — Local **agentic** reference implementation: IN PROGRESS
+- [x] Architecture capability manifest and local/AWS mapping/plan
+- [x] Docker Compose agent + Ollama
+- [x] Local model inference, bounded tool calls, deterministic default-deny policy
+- [x] SQLite persistent session memory, lexical knowledge retrieval, synthetic customer data
+- [x] Workbench CLI: `plan`, `deploy local`, `benchmark local`, `stop local`
+- [x] Unit tests and CI for provider logic / schema
+- [ ] True MCP local tool gateway
+- [ ] pgvector/Qdrant semantic retrieval and richer memory extraction
+- [ ] Browser with sandbox and auditable policy controls
+- [ ] Stateful business-outcome graders and cross-session test sets
 
-**Research questions:** When do retries/queues outperform direct tool calls under variable failure rates? When does Step Functions improve correctness enough to justify complexity? When does RAG beat long context after retrieval-store costs? When do AgentCore, ECS and Lambda minimize total cost of successful tasks?
+## Stage 2 — AWS parity: PLANNED
+- [ ] Bedrock Converse model adapter with same agent prompts/tool schemas
+- [ ] AgentCore Runtime CDK / Toolkit integration
+- [ ] AgentCore Gateway, Memory and Policy integration with conformance tests
+- [ ] Knowledge Bases indexing, authorization and retrieval comparison
+- [ ] Hybrid local-agent/selected-AWS-service target
+- [ ] Deploy/teardown protection and resource inventory
 
-Do not publish simulated retry results as measured agent intelligence or cloud performance.
+## Stage 3 — Enterprise benchmarks: PLANNED
+- [ ] Comparable model endpoint pinned across local/hybrid/AWS
+- [ ] Repeated trials, concurrency/load tests and confidence intervals
+- [ ] OpenTelemetry traces and policy violation graders
+- [ ] Cost Explorer/CUR reconciliation and cost per successful task
+- [ ] Scenario decision reports explaining security, correctness, latency and economics
+
+Research priorities: agent vs workflow determinism; persistent memory value; retrieval strategy; specialized multi-agent overhead; AgentCore vs ECS vs Lambda.

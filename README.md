@@ -1,18 +1,70 @@
 # Agentic Cloud Architecture
 
-Reference architectures, AWS service economics, infrastructure as code and reproducible evaluations for production AI agents.
+**Design agentic systems once; exercise their capabilities locally; deploy equivalent systems using managed cloud services; measure the trade-offs.**
 
-## Start here
+A scenario-driven workbench for **production AI-agent architecture**, with AWS Bedrock and AgentCore as the principal enterprise target. It combines declarative specifications, capability adapters, repeatable evaluations, AWS infrastructure-as-code, and transparent cost analysis.
 
-- [AWS service catalog](docs/aws-services.md) — purpose, pricing model, scalability and gotchas.
-- [Architecture patterns](patterns/README.md) — choose designs from business scenarios and document trade-offs.
-- [Benchmark methodology](docs/evaluations.md) — synthetic versus real agent versus live AWS tests.
-- [Cost controls](docs/cost-guardrails.md) — local estimation, budget alerts and teardown.
-- [Roadmap](docs/roadmap.md) — what's implemented versus proposed.
+This is **not** a course or a cloud emulator. It is a collection of reference patterns and an evolving executable architecture toolchain. The aim is architectural fluency: given a business problem, rapidly construct defensible agent designs and demonstrate *why* one is preferable.
 
-## Local usage: no AWS account needed
+## The central abstraction: capabilities, not vendors
 
-Requires Python 3.11+; the profiler and benchmark runner use the standard library.
+An agent needs intelligence, memory, knowledge retrieval, tools, identity/policy, execution, and observability. Whether those capabilities are provided by a laptop or AWS should be a deployment choice, not a complete rewrite.
+
+~~~text
+                 BUSINESS SCENARIO + ACCEPTANCE TESTS
+                                 │
+                      DECLARATIVE SPECIFICATION
+                  (capabilities, limits, workload)
+                                 │
+                     AGENT APPLICATION / TOOL CONTRACTS
+                           ┌─────┴─────┐
+                       LOCAL         AWS
+                  ┌────────────┐ ┌──────────────────┐
+  model           │ Ollama     │ │ Bedrock          │
+  runtime         │ Python     │ │ AgentCore Runtime│
+  memory          │ SQLite     │ │ AgentCore Memory │
+  knowledge       │ local text │ │ Knowledge Bases  │
+  tools           │ tool calls │ │ AgentCore Gateway│
+  authorization   │ allowlist  │ │ AgentCore Policy │
+  observability   │ JSON traces│ │ CloudWatch/X-Ray │
+                  └─────┬──────┘ └────────┬─────────┘
+                        └────────┬────────┘
+                    COMMON EVALUATION WORKLOAD
+            correctness · latency · recovery · cost · safety
+~~~
+
+**Functional portability is not operational parity.** Local tools can establish correctness of prompts, business logic, retrieval, permissions, memory, and error handling. They cannot prove AWS autoscaling behavior, billing, cold starts, multi-tenant isolation, managed quotas, or security controls. Some AWS offerings are proprietary; a local adapter performs a comparable *role*, not the identical implementation.
+
+### Agent-specific service parity
+
+| Agent capability | Local analogue | Enterprise AWS counterpart | Important mismatch |
+|---|---|---|---|
+| Inference | Ollama / local model | Bedrock | Different models can change results dramatically |
+| Agent hosting | Python container | AgentCore Runtime | Sessions, isolation, IAM, managed scaling |
+| Tool connectivity | Built-in tools; MCP integration planned | AgentCore Gateway (MCP) | Tool schemas may align, authorization/routing differs |
+| Long-term memory | SQLite key/value; vector memory planned | AgentCore Memory | Extraction, semantics, retention differ |
+| Enterprise retrieval | Local lexical corpus; vector RAG planned | Bedrock Knowledge Bases | Ingestion pipelines and index freshness differ |
+| Authorization | Deterministic allowlist | AgentCore Policy (Cedar/Dogwood) | Current local enforcement **does not** execute Cedar |
+| Browser | Playwright planned | AgentCore Browser | Browser isolation/session quotas differ |
+| Sandboxed code | Containers planned | AgentCore Code Interpreter | Sandbox boundaries and operational behavior differ |
+| Evaluation | Fixture/HTTP runner | AgentCore Evaluations | Graders/tracing/managed integrations differ |
+| Telemetry | Structured local traces | CloudWatch, X-Ray, OTEL | Collection/retention and backend semantics differ |
+
+**Current status:** A real local Ollama-backed agent service, basic local memory/retrieval/tools/policy, a Docker Compose target, and benchmark integration are available alongside an older synthetic harness and AWS queue CDK skeleton. The AWS **AgentCore application deployment is not yet implemented**. The AWS target currently produces a mapping/plan and refuses to pretend that the existing queue stack deploys this agent. See [capability contracts and parity](docs/capability-parity.md).
+
+## Three levels of evidence
+
+| Level | Question answered | What runs | AWS spend |
+|---|---|---|---|
+| **Local** | Does the agent *work*? | Actual local model, agent loop, tool implementations, memory, evaluation | None; hardware and power are not free |
+| **Hybrid** (planned) | Is a given managed component integration-compatible? | Local agent + one selected Bedrock/AgentCore service | Potential model/service charges |
+| **AWS** (planned) | Does enterprise infrastructure *scale and operate* as claimed? | AgentCore/Bedrock and managed services | Real usage charges; controlled experiment |
+
+A synthetic rule-based driver is available for smoke tests without downloading models. It **does not count as an LLM benchmark**. For fair infrastructure comparisons, pin model/version, prompts, tools, dataset and evaluation rubric across targets. Treat differing local/AWS models as a **model + infrastructure comparison**, not an apples-to-apples hosting result.
+
+## Getting started
+
+**Offline analysis (Python 3.11+, no credentials):**
 
 ~~~bash
 python -m agent_arch catalog
@@ -23,47 +75,81 @@ python -m agent_arch compare architectures/local-direct.json architectures/local
 python -m unittest discover -s tests -v
 ~~~
 
-Declarative scenario profiles are JSON files under architectures/. AWS prices are **approximate US East assumptions**, not a bill quote. A budget threshold here is a local preflight check, not a true AWS spending cap.
+These commands are the original, standard-library-only analysis and synthetic evaluation harness. Its fixture comparison tests retry mechanics, not LLM performance.
 
-### Benchmarks: be precise about evidence
-
-The included fixture runner simulates transient tool errors and tests the runner's retry/scoring mechanism. It does **not** call an LLM or measure AWS performance. Run real agents by pointing the HTTP adapter at your own agent endpoint; its request never contains the expected answer.
+**The workbench (no additional Python dependencies):**
 
 ~~~bash
-python -m agent_arch bench architectures/local-direct.json --driver http --endpoint http://127.0.0.1:8000/agent --output reports/real-agent.json
+python -m pip install -e .
+agent-arch plan --target local
+agent-arch plan --target aws          # Mapping only; no AWS calls
+agent-arch deploy --target local      # Docker Compose: local agent and Ollama
+docker compose -f deploy/local/compose.yaml exec ollama ollama pull llama3.2:3b
+agent-arch benchmark --target local   # Real local-model endpoint, not a synthetic fixture
+agent-arch stop --target local
 ~~~
 
-POST request body: `{"task_id":"t1","input":"...","context":{}}`. Response body: `{"answer":"billing","usage":{"input_tokens":100,"output_tokens":10}}`. Token-priced costs require truthful usage from the endpoint.
+The first model pull downloads weights and needs local RAM/disk capacity; the benchmark requires Docker and a pulled model. See [local runtime](docs/local-runtime.md). For a **no-model smoke test**, set `AGENT_MODEL_PROVIDER=rules` for the local agent container; results must be labeled deterministic, not agent intelligence.
 
-### Optional AWS reference stack
+### Declare an architecture
 
-The CDK example in [infrastructure/](infrastructure/) is a **deployable SQS → Lambda** worker plus DynamoDB task state and S3 artifacts. It deliberately does not invoke a model, deploy AgentCore, or promise complete profile-to-CDK compilation.
+[Portable enterprise research example](architectures/portable-research.json):
 
-~~~bash
-cd infrastructure
-python -m pip install -r requirements.txt
-npm install -g aws-cdk
-cdk synth        # No resources provisioned
-# With your own AWS account, credentials, budget controls and reviewed costs:
-cdk diff
-cdk deploy       # May incur charges
-cdk destroy      # Then verify no leftover resources
+~~~json
+{
+  "name": "enterprise-research",
+  "capabilities": {
+    "model": {"provider": "ollama", "name": "llama3.2:3b"},
+    "memory": {"type": "persistent"},
+    "retrieval": {"type": "document_search"},
+    "tools": ["search_docs", "lookup_customer", "remember", "recall"],
+    "policy": {"default": "deny", "allowed_tools": ["search_docs", "lookup_customer", "remember", "recall"]},
+    "observability": {"traces": true}
+  },
+  "limits": {"max_model_turns": 6, "max_tool_calls": 12},
+  "evaluation": {"fixture": "fixtures/enterprise_research.json"}
+}
 ~~~
 
-No automatic deployment is configured. CI performs offline validation only.
+This capability specification is separate from the older `architectures/*.json` **cost/benchmark profiles**. The local runtime implements the named subset. AWS mappings are specified but not a universal CDK compiler. Details: [schema and contracts](docs/capability-parity.md).
 
-## Layout
+## Architecture development workflow
+
+1. **Describe a business scenario.** Workload, latency, state, authorization boundaries, deployment constraints, correctness criteria and failure cases.
+2. **Sketch 2–3 candidate architectures.** Choose single agent vs multi-agent, memory strategy, retrieval approach, queues, orchestration and deployment substrate.
+3. **Run locally.** Stand up real services, evaluate business outcomes, inspect tool traces, inject failures, and repeat trials.
+4. **Model cloud costs before provisioning.** Use the service rate card; label omitted meters and pricing uncertainty. See [AWS agent-service catalog](docs/aws-services.md) and [cost guardrails](docs/cost-guardrails.md).
+5. **Move to a managed target when justified.** Generate/review infrastructure changes, provision under a controlled budget, run the *same* scenario and capture AWS observability.
+6. **Publish a decision record.** Show task success, P50/P95 latency, failure modes, security behavior, throughput, cost per successful task, and limitations.
+
+Do not claim AWS scale characteristics from local Docker benchmarks. Do not claim strong policy parity from a local allowlist. Do not equate an LLM's plausible response with verified business task completion.
+
+## Reference patterns
+
+Browse [scenario-driven patterns](patterns/README.md): bursty document triage, durable approvals, enterprise RAG, and long-running research agents. Each pattern should eventually have a deployment topology, cost model, benchmark suite and architectural decision record. [ADR-001](docs/adr-001.md) explains why evaluation is isolated from deployment.
+
+## Repository map
 
 ~~~text
-agent_arch/         Architecture, cost and evaluation CLI
-architectures/      Declarative scenario profiles
-catalog/            Price-meter snapshot
-fixtures/           Deterministic synthetic tasks
-infrastructure/     Optional AWS CDK reference implementation
-patterns/           Scenario-led decisions and alternatives
-docs/               Service catalog, evaluation rigor, cost controls
-tests/              Offline tests
-reports/            Local benchmark outputs (gitignored)
+agent_arch/          Workbench, local agent capability providers, CLI and evals
+architectures/       Cost/benchmark profiles and portable agent specifications
+deploy/local/        Docker Compose local reference target
+knowledge/           Synthetic enterprise documents and customer records
+fixtures/            Evaluation workloads / expected business outcomes
+infrastructure/      Existing AWS CDK queue-worker reference (NOT AgentCore)
+catalog/             Approximate pricing meters and assumptions
+patterns/            Scenario -> architecture -> alternatives -> trade-offs
+docs/                Service catalog, parity matrix, design and roadmap
+tests/               Offline unit and smoke tests
+reports/             Local result artifacts (ignored by git)
 ~~~
 
-Principle: design → estimate → validate → measure → compare → explain. Do not present simulations as real agent performance or estimates as actual AWS spend.
+## Current scope, boundaries and roadmap
+
+- **Implemented:** AWS service catalog; transparent partial cost estimation and guard preflight; synthetic retry harness; real-agent HTTP benchmarking; local Ollama-backed tool-using research agent with SQLite memory and local document search; Compose runner and CLI; a separate SQS/Lambda/DynamoDB/S3 CDK reference; offline CI.
+- **Next:** full MCP-compatible tool adapter, pgvector RAG, semantic memory, proper Cedar policy parity, browser/tool isolation, richer task-outcome scoring and observability traces.
+- **Then:** selected portable specification-to-CDK transforms, AgentCore Runtime/Gateway/Memory/Policy integration, hybrid deployment, controlled AWS benchmarking, billed-cost reconciliation and verified teardown.
+
+No AWS deployment is automatic. AWS Budgets are alerts and partial controls, **not guaranteed hard spending caps**. Review all resources and costs before cloud provisioning.
+
+Authoritative platform references: [Amazon Bedrock AgentCore](https://docs.aws.amazon.com/bedrock-agentcore/), [AgentCore Runtime local development](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/runtime-get-started-cli.html), [AgentCore Gateway & MCP](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/gateway-using.html), [AWS Pricing Calculator](https://calculator.aws/).
