@@ -1,0 +1,83 @@
+{
+  "as_of": "2026-10-15",
+  "region": "us-east-1",
+  "currency": "USD",
+  "disclaimer": "Illustrative on-demand rates; exclude free tier, ancillary charges, region variability and tiering.",
+  "meters": {
+    "lambda.requests": {
+      "usd_per_unit": 2e-7,
+      "unit": "request",
+      "source": "https://aws.amazon.com/lambda/pricing/"
+    },
+    "lambda.gb_seconds": {
+      "usd_per_unit": 0.0000166667,
+      "unit": "GB-second x86",
+      "source": "https://aws.amazon.com/lambda/pricing/"
+    },
+    "sqs.requests": {
+      "usd_per_unit": 4e-7,
+      "unit": "standard request",
+      "source": "https://aws.amazon.com/sqs/pricing/"
+    },
+    "s3.gb_month": {
+      "usd_per_unit": 0.023,
+      "unit": "Standard GB-month",
+      "source": "https://aws.amazon.com/s3/pricing/"
+    },
+    "s3.put": {
+      "usd_per_unit": 0.000005,
+      "unit": "PUT request",
+      "source": "https://aws.amazon.com/s3/pricing/"
+    },
+    "s3.get": {
+      "usd_per_unit": 4e-7,
+      "unit": "GET request",
+      "source": "https://aws.amazon.com/s3/pricing/"
+    },
+    "stepfunctions.transitions": {
+      "usd_per_unit": 0.000025,
+      "unit": "Standard transition",
+      "source": "https://aws.amazon.com/step-functions/pricing/"
+    },
+    "secrets.secret_month": {
+      "usd_per_unit": 0.4,
+      "unit": "secret-month",
+      "source": "https://aws.amazon.com/secrets-manager/pricing/"
+    },
+    "nat.hours": {
+      "usd_per_unit": 0.045,
+      "unit": "gateway-hour",
+      "source": "https://aws.amazon.com/vpc/pricing/"
+    },
+    "nat.gb": {
+      "usd_per_unit": 0.045,
+      "unit": "GB processed",
+      "source": "https://aws.amazon.com/vpc/pricing/"
+    },
+    "fargate.vcpu_hours": {
+      "usd_per_unit": 0.04048,
+      "unit": "vCPU-hour x86 Linux",
+      "source": "https://aws.amazon.com/fargate/pricing/"
+    },
+    "fargate.gb_hours": {
+      "usd_per_unit": 0.004445,
+      "unit": "GB-hour x86 Linux",
+      "source": "https://aws.amazon.com/fargate/pricing/"
+    },
+    "agentcore.v2_vcpu_hours": {
+      "usd_per_unit": 0.1276,
+      "unit": "consumed vCPU-hour",
+      "source": "https://aws.amazon.com/bedrock/agentcore/pricing/"
+    },
+    "agentcore.v2_gb_hours": {
+      "usd_per_unit": 0.0169,
+      "unit": "billed GB-hour",
+      "source": "https://aws.amazon.com/bedrock/agentcore/pricing/"
+    },
+    "agentcore.gateway_calls": {
+      "usd_per_unit": 0.000005,
+      "unit": "API invocation",
+      "source": "https://aws.amazon.com/bedrock/agentcore/pricing/"
+    }
+  }
+}

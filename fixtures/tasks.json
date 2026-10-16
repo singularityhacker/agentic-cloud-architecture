@@ -1,0 +1,58 @@
+[
+  {
+    "id": "t1",
+    "input": "Incorrect invoice",
+    "expected": "billing",
+    "context": {},
+    "transient_failures": 0
+  },
+  {
+    "id": "t2",
+    "input": "Unable to upload file",
+    "expected": "support",
+    "context": {},
+    "transient_failures": 1
+  },
+  {
+    "id": "t3",
+    "input": "Account takeover",
+    "expected": "security",
+    "context": {},
+    "transient_failures": 2
+  },
+  {
+    "id": "t4",
+    "input": "Charged twice",
+    "expected": "billing",
+    "context": {},
+    "transient_failures": 0
+  },
+  {
+    "id": "t5",
+    "input": "Reset audit access",
+    "expected": "security",
+    "context": {},
+    "transient_failures": 1
+  },
+  {
+    "id": "t6",
+    "input": "Dashboard error",
+    "expected": "support",
+    "context": {},
+    "transient_failures": 0
+  },
+  {
+    "id": "t7",
+    "input": "Change payment method",
+    "expected": "billing",
+    "context": {},
+    "transient_failures": 3
+  },
+  {
+    "id": "t8",
+    "input": "Request access logs",
+    "expected": "security",
+    "context": {},
+    "transient_failures": 0
+  }
+]

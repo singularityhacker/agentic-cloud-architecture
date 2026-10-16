@@ -1,0 +1,33 @@
+{
+  "id": "aws-queue-worker",
+  "scenario": "Bursty documents with bounded retry and durable task state",
+  "target": "aws",
+  "driver": "fixture",
+  "fixture": "fixtures/tasks.json",
+  "pattern": "queue-backed",
+  "retry_attempts": 3,
+  "model": {
+    "name": "illustrative-not-a-specific-bedrock-model",
+    "input_usd_per_million": 3,
+    "output_usd_per_million": 15
+  },
+  "workload": {
+    "monthly_tasks": 10000,
+    "model_calls_per_task": 3,
+    "input_tokens_per_call": 1500,
+    "output_tokens_per_call": 300
+  },
+  "usage": {
+    "lambda.requests": 30000,
+    "lambda.gb_seconds": 2400,
+    "sqs.requests": 95000,
+    "s3.gb_month": 10,
+    "s3.put": 10000,
+    "s3.get": 30000,
+    "secrets.secret_month": 2
+  },
+  "cost_policy": {
+    "monthly_estimate_cap_usd": 350
+  },
+  "deployment_note": "CDK example implements infrastructure skeleton, not model inference"
+}
