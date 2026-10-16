@@ -1,0 +1,28 @@
+services:
+  agent:
+    build:
+      context: ../..
+      dockerfile: deploy/local/Dockerfile
+    environment:
+      AGENT_SPEC: ${AGENT_SPEC:-architectures/portable-research.json}
+      AGENT_MODEL_PROVIDER: ${AGENT_MODEL_PROVIDER:-ollama}
+      AGENT_MODEL: ${AGENT_MODEL:-llama3.2:3b}
+      OLLAMA_BASE_URL: http://ollama:11434
+      AGENT_MEMORY_DB: /data/memory.db
+      AGENT_BIND: 0.0.0.0
+      AGENT_PORT: 8000
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - agent_memory:/data
+    depends_on:
+      - ollama
+    restart: unless-stopped
+  ollama:
+    image: ollama/ollama:latest
+    volumes:
+      - ollama_models:/root/.ollama
+    restart: unless-stopped
+volumes:
+  agent_memory:
+  ollama_models:

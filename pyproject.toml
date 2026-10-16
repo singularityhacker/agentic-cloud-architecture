@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agentic-cloud-architecture"
+version = "0.2.0"
+description = "Offline-first agent architecture workbench with local and AWS targets"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.scripts]
+agent-arch = "agent_arch.workbench:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["agent_arch*"]
