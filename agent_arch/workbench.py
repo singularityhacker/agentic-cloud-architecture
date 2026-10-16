@@ -200,8 +200,13 @@ def main(argv=None):
         if args.command == "benchmark":
             endpoint = args.endpoint or (
                 "http://127.0.0.1:8000/agent" if args.target == "local" else None)
-            if args.target == "aws" and not args.allow_paid:
-                raise ValueError("AWS evaluation may incur charges; supply --allow-paid")
+            hosted_local = (
+                args.target == "local" and
+                (os.getenv("AGENT_MODEL_PROVIDER") or
+                 spec["capabilities"]["model"]["bindings"]["local"]["provider"]) == "huggingface"
+            )
+            if (args.target == "aws" or hosted_local) and not args.allow_paid:
+                raise ValueError("Hosted inference may incur charges; supply --allow-paid")
             if not endpoint:
                 raise ValueError("Specify --endpoint for an externally deployed AWS agent")
             write_report(evaluated(spec, args.target, endpoint, args.timeout), args.output)

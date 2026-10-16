@@ -144,7 +144,7 @@ export HF_TOKEN=your_token_here
 python -m pip install -e '.[hf]'
 agent-arch --spec architectures/portable-research-hf.json plan --target local
 agent-arch --spec architectures/portable-research-hf.json deploy --target local
-agent-arch --spec architectures/portable-research-hf.json benchmark --target local
+agent-arch --spec architectures/portable-research-hf.json benchmark --target local --allow-paid
 agent-arch --spec architectures/portable-research-hf.json stop --target local
 ~~~
 

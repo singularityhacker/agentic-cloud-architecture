@@ -56,10 +56,10 @@ Choose `architectures/portable-research-hf.json` for an agent executed in local 
 export HF_TOKEN=your_token_here
 agent-arch --spec architectures/portable-research-hf.json plan --target local
 agent-arch --spec architectures/portable-research-hf.json deploy --target local
-agent-arch --spec architectures/portable-research-hf.json benchmark --target local
+agent-arch --spec architectures/portable-research-hf.json benchmark --target local --allow-paid
 agent-arch --spec architectures/portable-research-hf.json stop --target local
 ~~~
 
 The Dockerfile installs the optional Hugging Face SDK. Keep the access token in an environment variable rather than storing it in Git; remember that environment variables may be visible to anyone with access to the Docker host. The hosted model and its inference provider must **actually support chat completion and function calling**. The example ID is illustrative, not a live availability guarantee.
 
-This workflow may incur provider charges; `agent-arch benchmark --target local` does not itself enforce a spending cap for external hosted models. For bounded specialist-model experiments, use `agent-arch model-benchmark --max-tasks N --allow-paid`. Do not send confidential datasets to hosted models without an approved data-processing agreement.
+This workflow may incur provider charges. Hosted-model benchmarks require `--allow-paid` even when the agent itself runs locally; this is an authorization prompt, not a hard dollar budget. For bounded specialist-model experiments, use `agent-arch model-benchmark --max-tasks N --allow-paid`. Do not send confidential datasets to hosted models without an approved data-processing agreement.
